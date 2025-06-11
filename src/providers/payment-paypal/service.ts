@@ -44,7 +44,7 @@ import {
 } from "@medusajs/framework/utils";
 import { initiatePaymentData, PayPalOptions, VerifyWebhookSignature } from "./types";
 import { Logger } from "@medusajs/medusa";
-import getPurchaseUnits from "./utils";
+import { getPurchaseUnits } from "./utils";
 
 type InjectedDependencies = {
   logger: Logger;
@@ -231,6 +231,9 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
   }: InitiatePaymentInput): Promise<InitiatePaymentOutput> {
     const ordersController = new OrdersController(this.client_);
 
+    data ? data.amount = amount : data = { amount, currency_code }
+    data ? data.currency_code = currency_code : data = { amount, currency_code }
+
     try {
       const purchaseUnits = getPurchaseUnits(data as any);
 
@@ -240,22 +243,13 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
             ? CheckoutPaymentIntent.Capture
             : CheckoutPaymentIntent.Authorize,
           ...purchaseUnits,
-          purchaseUnits: [
-            {
-              // referenceId:paymentData?.data?.session_id as string,
-              amount: {
-                currencyCode: currency_code.toUpperCase(),
-                value: amount.toString(),
-              },
-            },
-          ],
         },
       });
       const isPaymentIntent = "id" in result;
       return {
         id: isPaymentIntent
           ? (result.id as string)
-          : (paymentData.data?.session_id as string),
+          : (data?.session_id as string),
         data: {
           ...result,
         },
