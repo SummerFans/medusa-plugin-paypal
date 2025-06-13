@@ -21,8 +21,6 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
 
   const paypalDetailUrl = getPaypalDetailUrl(paypalPayment);
 
-  console.log(paypalDetailUrl);
-
   useEffect(() => {
     if (!loading) return;
     fetch(`/admin/plugin/paypal/orders/${paypalOrderId}`)
@@ -59,7 +57,7 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
                 <Text size="xsmall">
                   Status:{" "}
                   <Badge size="2xsmall" color="green">
-                    {payment.status}
+                    {payment.purchase_units[0].payments.captures[0].status}
                   </Badge>
                 </Text>
               </div>

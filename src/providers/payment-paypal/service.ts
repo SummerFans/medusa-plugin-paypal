@@ -135,6 +135,7 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
     data,
     context,
   }: CancelPaymentInput): Promise<CancelPaymentOutput> {
+
     return { data };
   }
 

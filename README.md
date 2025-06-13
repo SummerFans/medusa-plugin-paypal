@@ -1,6 +1,7 @@
 # Medusa-plugin-paypal
 medusa-plugin-paypal is a integration of payment provider for Paypal.
 
+**[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
 
 ## Installaction
 ```
@@ -34,7 +35,7 @@ modules:[
 ]
 plugins: [
     {
-      resolve: "@rsc-labs/medusa-paypal-payment",
+      resolve: "medusa-paypal-payment",
       options: {
         intent:{'CAPTURE' | 'AUTHORIZE'}
         clientId: {string},
