@@ -35,7 +35,10 @@ const getPurchaseUnits = (
   extra: Record<string, unknown>
 ): { purchaseUnits: PurchaseUnitRequest[] } => {
 
-  let purchaseUnit: PurchaseUnitRequest = { amount: { currencyCode: '', value: '' } };
+  let purchaseUnit: PurchaseUnitRequest = {
+    customId: extra.session_id as string,
+    amount: { currencyCode: '', value: '' }
+  };
   let breakdown: AmountBreakdown = {};
   let shipping: ShippingDetails = {};
 

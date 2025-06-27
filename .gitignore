@@ -1,3 +1,4 @@
+.text
 /dist
 .env
 .DS_Store

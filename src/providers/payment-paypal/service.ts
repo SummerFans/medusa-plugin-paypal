@@ -131,12 +131,38 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
     }
   }
 
-  async cancelPayment({
-    data,
-    context,
-  }: CancelPaymentInput): Promise<CancelPaymentOutput> {
+  async cancelPayment(paymentData: CancelPaymentInput): Promise<CancelPaymentOutput> {
 
-    return { data };
+    const paypalOrder = paymentData.data!.paypalOrder as PaypalOrder;
+    if (paypalOrder.purchaseUnits?.length &&
+      paypalOrder.purchaseUnits[0].payments
+    ) {
+      const isAlreadyCanceled = paypalOrder.status === PaypalOrderStatus.Voided;
+      const isCanceledAndFullyRefund = paypalOrder.status === PaypalOrderStatus.Completed && !!paypalOrder.purchaseUnits[0].invoiceId;
+      if (isAlreadyCanceled || isCanceledAndFullyRefund) {
+        return await this.retrievePayment(paymentData)
+      }
+      const paymentsController = new PaymentsController(this.client_);
+      try {
+        const isAlreadyCaptured = paypalOrder.purchaseUnits.some((pu => pu.payments?.captures?.length));
+        if (isAlreadyCaptured) {
+          const payments = paypalOrder.purchaseUnits[0].payments;
+          const capturesId = payments.captures![0].id;
+          await paymentsController.refundCapturedPayment({
+            captureId: capturesId as string,
+          })
+        } else {
+          const id = paypalOrder.purchaseUnits[0].payments!.authorizations![0].id as string;
+          await paymentsController.voidPayment({
+            authorizationId: id
+          })
+        }
+        return await this.retrievePayment(paymentData)
+      } catch (error) {
+        throw new Error("An error occurred in cancelPayment")
+      }
+    }
+    throw new Error("An error occurred in cancelPayment")
   }
 
   async getPaymentStatus(
@@ -145,32 +171,37 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
     const retrievedPayment = await this.retrievePayment(paymentData);
     const paypalOrder = retrievedPayment.data as PaypalOrder;
 
-    switch (paypalOrder.status) {
+    switch (paypalOrder.status as string) {
       case PaypalOrderStatus.Created:
         return {
-          status: "pending",
+          status: PaymentSessionStatus.PENDING,
           data: retrievedPayment.data,
         };
-      case PaypalOrderStatus.Saved:
-      case PaypalOrderStatus.Approved:
+      // case PaypalOrderStatus.Saved:
+      // case PaypalOrderStatus.Approved:
       case PaypalOrderStatus.PayerActionRequired:
         return {
-          status: "requires_more",
+          status: PaymentSessionStatus.REQUIRES_MORE,
           data: retrievedPayment.data,
         };
       case PaypalOrderStatus.Voided:
         return {
-          status: "canceled",
+          status: PaymentSessionStatus.CANCELED,
+          data: retrievedPayment.data,
+        };
+      case "authorized":
+        return {
+          status: PaymentSessionStatus.AUTHORIZED,
           data: retrievedPayment.data,
         };
       case PaypalOrderStatus.Completed:
         return {
-          status: "authorized",
+          status: PaymentSessionStatus.CAPTURED,
           data: retrievedPayment.data,
         };
       default:
         return {
-          status: "pending",
+          status: PaymentSessionStatus.PENDING,
           data: retrievedPayment.data,
         };
     }
@@ -234,7 +265,6 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
 
     data ? data.amount = amount : data = { amount, currency_code }
     data ? data.currency_code = currency_code : data = { amount, currency_code }
-
     try {
       const purchaseUnits = getPurchaseUnits(data as any);
 
@@ -264,23 +294,20 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
   }
 
   async deletePayment(
-    paymentSessionData: DeletePaymentInput
+    input: DeletePaymentInput
   ): Promise<DeletePaymentOutput> {
-    return paymentSessionData;
+    return await this.cancelPayment(input);
   }
 
   async refundPayment(
     paymentData: RefundPaymentInput
   ): Promise<RefundPaymentOutput> {
+
     const paypalOrder = paymentData.data as PaypalOrder;
-    if (
-      paypalOrder.purchaseUnits?.length &&
-      paypalOrder.purchaseUnits[0].payments
-    ) {
+
+    if (paypalOrder.purchaseUnits?.length && paypalOrder.purchaseUnits[0].payments) {
       const purchaseUnit = paypalOrder.purchaseUnits[0];
-      const isAlreadyCaptured = paypalOrder.purchaseUnits.some(
-        (pu) => pu.payments?.captures?.length
-      );
+      const isAlreadyCaptured = paypalOrder.purchaseUnits.some((pu) => pu.payments?.captures?.length);
       if (!isAlreadyCaptured) {
         throw new Error("Cannot refund an uncaptured payment");
       }
@@ -291,13 +318,9 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
       try {
         await paymentsController.refundCapturedPayment({
           captureId: paymentId,
-          body: {
-            amount: {
-              currencyCode: currencyCode,
-              value: (paymentData.amount as BigNumberRawValue).value.toString(),
-            },
-          },
+          prefer: 'return=minimal'
         });
+
         return await this.retrievePayment(paymentData);
       } catch (error) {
         this.logger_.error(error);
@@ -342,8 +365,6 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
   async updatePayment(
     context: UpdatePaymentInput
   ): Promise<UpdatePaymentOutput> {
-    this.logger_.debug(` updatePayment`);
-
     const ordersController = new OrdersController(this.client_);
     try {
       const paypalOrderId = (context.data!.id as PaypalOrder).id as string;
@@ -385,6 +406,15 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
         case "CHECKOUT.ORDER.APPROVED":
           return {
             action: PaymentActions.REQUIRES_MORE,
+            data: {
+              session_id: resource.custom_id as string,
+              amount: new BigNumber(resource.amount.value),
+            },
+          };
+
+        case "PAYMENT.CAPTURE.REFUNDED":
+          return {
+            action: PaymentActions.CANCELED,
             data: {
               session_id: resource.custom_id as string,
               amount: new BigNumber(resource.amount.value),

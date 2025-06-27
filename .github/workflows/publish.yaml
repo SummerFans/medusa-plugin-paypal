@@ -1,9 +1,12 @@
 name: "Deploy"
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
-      - v*
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   preview:
@@ -30,3 +33,16 @@ jobs:
           npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          body: |
+            Production release ${{ github.ref_name }}
+            See CHANGELOG.md for details
