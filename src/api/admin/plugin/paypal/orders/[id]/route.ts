@@ -1,16 +1,19 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { PAYPAL_MODULE } from "../../../../../../modules/paypal";
-import PaypalModuleService from "../../../../../../modules/paypal/service";
-import { MedusaError } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils";
+import getPaypalOrderWorkflow from "../../../../../../workflows/get-paypal-order-workflow";
 
 export async function GET(req: MedusaRequest, res: MedusaResponse) {
-  const paypalService: PaypalModuleService = req.scope.resolve(PAYPAL_MODULE);
 
-  if(!req.params.id){
-    throw new MedusaError(MedusaError.Types.INVALID_DATA,'params error');
+  const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+
+  if (!req.params.id) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, 'params error');
   }
 
-  const order = await paypalService.getOrder(req.params.id)
-
-  res.json(order);
+  const {result} = await getPaypalOrderWorkflow(req.scope).run({
+    input: {
+      orderId: req.params.id
+    }
+  })
+  res.json(result.order);
 }

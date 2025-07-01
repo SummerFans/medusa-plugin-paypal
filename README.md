@@ -3,6 +3,10 @@ medusa-plugin-paypal is a integration of payment provider for Paypal.
 
 **[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
 
+## ⚠️ Warn
+>| Requires Medusa v2.7.0 or later.
+
+
 ## Installaction
 ```
 npm i medusa-plugin-paypal
@@ -27,6 +31,7 @@ modules:[
               clientSecret: {string},
               sandbox: {boolean},
               webhookId: {string}
+
           },
         }
       ]
@@ -42,13 +47,11 @@ plugins: [
         clientSecret: {string},
         sandbox: {boolean},
         webhookId: {string}
-        redisUrl: {string}
       },
     }
 ]
 
 ```
-
 
 ## Store
 

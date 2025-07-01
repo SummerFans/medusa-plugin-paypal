@@ -5,8 +5,6 @@ export interface PayPalOptions {
   clientSecret: string;
   timeout?: number;
   webhookId: string;
-  redisUrl: string;
-  redisOptions?: Record<string, any>;
 }
 
 export interface VerifyWebhookSignature {
