@@ -6,6 +6,8 @@ import { ArrowUpRightOnBox, Spinner } from "@medusajs/icons";
 import { useEffect, useState } from "react";
 import { Badge, Text } from "@medusajs/ui";
 
+declare const __BACKEND_URL__: string;
+
 const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
   const paypalPayment = getPayPalPayment(order);
   if (!paypalPayment) {
@@ -23,7 +25,7 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
 
   useEffect(() => {
     if (!loading) return;
-    fetch(`/admin/plugin/paypal/orders/${paypalOrderId}`)
+    fetch(`${__BACKEND_URL__||''}/admin/plugin/paypal/orders/${paypalOrderId}`)
       .then((res) => res.json())
       .then((data) => {
         setPayment(data);
