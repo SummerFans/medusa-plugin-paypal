@@ -25,7 +25,10 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
 
   useEffect(() => {
     if (!loading) return;
-    fetch(`${__BACKEND_URL__||''}/admin/plugin/paypal/orders/${paypalOrderId}`)
+    fetch(`${__BACKEND_URL__ || ''}/admin/plugin/paypal/orders/${paypalOrderId}`, {
+      method: "GET",
+      credentials: 'include'
+    })
       .then((res) => res.json())
       .then((data) => {
         setPayment(data);
@@ -64,7 +67,7 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
                 </Text>
               </div>
               <div>
-                <Text size="xsmall">{id} <IconButton size="2xsmall" variant="transparent"><a href={paypalDetailUrl} target="_blank" ><ArrowUpRightOnBox/></a></IconButton> </Text>
+                <Text size="xsmall">{id} <IconButton size="2xsmall" variant="transparent"><a href={paypalDetailUrl} target="_blank" ><ArrowUpRightOnBox /></a></IconButton> </Text>
               </div>
               <div>
                 <Text size="xsmall">
@@ -72,7 +75,7 @@ const OrderDetailWidget = ({ data: order }: DetailWidgetProps<AdminOrder>) => {
                   {payment.payer.name.surname}
                 </Text>
               </div>
-              
+
               {/* https://www.sandbox.paypal.com/unifiedtransactions/details/payment/04H74758DP041154P */}
             </div>
           )}
