@@ -132,37 +132,11 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
   }
 
   async cancelPayment(paymentData: CancelPaymentInput): Promise<CancelPaymentOutput> {
-
-    const paypalOrder = paymentData.data!.paypalOrder as PaypalOrder;
-    if (paypalOrder.purchaseUnits?.length &&
-      paypalOrder.purchaseUnits[0].payments
-    ) {
-      const isAlreadyCanceled = paypalOrder.status === PaypalOrderStatus.Voided;
-      const isCanceledAndFullyRefund = paypalOrder.status === PaypalOrderStatus.Completed && !!paypalOrder.purchaseUnits[0].invoiceId;
-      if (isAlreadyCanceled || isCanceledAndFullyRefund) {
-        return await this.retrievePayment(paymentData)
-      }
-      const paymentsController = new PaymentsController(this.client_);
-      try {
-        const isAlreadyCaptured = paypalOrder.purchaseUnits.some((pu => pu.payments?.captures?.length));
-        if (isAlreadyCaptured) {
-          const payments = paypalOrder.purchaseUnits[0].payments;
-          const capturesId = payments.captures![0].id;
-          await paymentsController.refundCapturedPayment({
-            captureId: capturesId as string,
-          })
-        } else {
-          const id = paypalOrder.purchaseUnits[0].payments!.authorizations![0].id as string;
-          await paymentsController.voidPayment({
-            authorizationId: id
-          })
-        }
-        return await this.retrievePayment(paymentData)
-      } catch (error) {
-        throw new Error("An error occurred in cancelPayment")
-      }
+    try {
+      return await this.retrievePayment(paymentData)
+    } catch (error) {
+      throw new Error("An error occurred in cancelPayment")
     }
-    throw new Error("An error occurred in cancelPayment")
   }
 
   async getPaymentStatus(
@@ -256,7 +230,6 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
   }
 
   async initiatePayment({
-    context,
     data,
     amount,
     currency_code,
@@ -313,7 +286,6 @@ class PaypalProviderService extends AbstractPaymentProvider<PayPalOptions> {
       }
 
       const paymentId = purchaseUnit.payments?.captures![0].id as string;
-      const currencyCode = purchaseUnit.amount?.currencyCode as string;
       const paymentsController = new PaymentsController(this.client_);
       try {
         await paymentsController.refundCapturedPayment({
