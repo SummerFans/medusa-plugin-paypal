@@ -9,22 +9,22 @@ const getPaypalTokenStepId = 'get-paypal-token-step'
 const getPaypalToken = createStep(
   getPaypalTokenStepId,
   async (_, { container }) => {
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-    const cacheModuleService = container.resolve(Modules.CACHE);
+    // const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+    const cachingModuleService = container.resolve(Modules.CACHING);
     const paypalModuleService: PaypalModuleService = container.resolve(PAYPAL_MODULE);
 
-    const token = await cacheModuleService.get(PAYPAL_TOKEN_CACHE_NAME) as string
+    const result = await cachingModuleService.get({ key: PAYPAL_TOKEN_CACHE_NAME }) as { access_token: string, expires_in: number }
 
-    if (!token) {
+    if (!result) {
       const { access_token, expires_in } = await paypalModuleService.getToken()
-      await cacheModuleService.set(PAYPAL_TOKEN_CACHE_NAME, access_token, expires_in)
+      await cachingModuleService.set({
+        key: PAYPAL_TOKEN_CACHE_NAME,
+        data: { access_token, expires_in },
+        ttl: expires_in
+      })
       return new StepResponse({ token: access_token });
     }
-
-
-    return new StepResponse({ token });
-
-
+    return new StepResponse({ token: result.access_token });
   }
 )
 

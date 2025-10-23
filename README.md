@@ -4,7 +4,7 @@ medusa-plugin-paypal is a integration of payment provider for Paypal.
 **[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
 
 ## ⚠️ Warn
->| Requires Medusa v2.7.0 or later.
+>| Requires Medusa v2.10.4 or later.
 
 
 ## Installaction
@@ -16,23 +16,23 @@ npm i medusa-plugin-paypal
 
 ```js
 // medusa-config.js
-...
+const { loadEnv, defineConfig, Modules } = require("@medusajs/framework/utils");
+// ...
 modules:[
-  {
+  [Modules.PAYMENT]: {
     resolve: "@medusajs/medusa/payment",
     options: {
       providers: [
         {
           resolve: "medusa-plugin-paypal/providers/paypal-payment",
-            id: "payment-paypal",
-            options: {
-              intent:{'CAPTURE' | 'AUTHORIZE'}
-              clientId: {string},
-              clientSecret: {string},
-              sandbox: {boolean},
-              webhookId: {string}
-
-          },
+          id: "payment-paypal",
+          options: {
+            intent: "CAPTURE",
+            clientId: process.env.PAYPAL_CLIENT_ID,
+            clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+            sandbox: true,
+            webhookId: process.env.PAYPAL_WEBHOOK_ID,
+          }
         }
       ]
     }
@@ -42,11 +42,11 @@ plugins: [
     {
       resolve: "medusa-paypal-payment",
       options: {
-        intent:{'CAPTURE' | 'AUTHORIZE'}
-        clientId: {string},
-        clientSecret: {string},
-        sandbox: {boolean},
-        webhookId: {string}
+        intent: "CAPTURE",
+        clientId: process.env.PAYPAL_CLIENT_ID,
+        clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+        sandbox: true,
+        webhookId: process.env.PAYPAL_WEBHOOK_ID,
       },
     }
 ]
