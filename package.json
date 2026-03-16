@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/SummerFans/medusa-plugin-paypal"
+    "url": "git+https://github.com/SummerFans/medusa-plugin-paypal.git"
   },
   "exports": {
     "./package.json": "./package.json",
@@ -39,14 +39,15 @@
     "dev:srv": "medusa develop",
     "prepublishOnly": "medusa plugin:build"
   },
+  "dependencies": {
+    "@paypal/paypal-server-sdk": "^1.1.0"
+  },
   "devDependencies": {
-    "@medusajs/admin-sdk": "^2.10.4",
-    "@medusajs/cli": "^2.10.4",
-    "@medusajs/framework": "^2.10.4",
-    "@medusajs/icons": "^2.10.4",
-    "@medusajs/medusa": "^2.10.4",
-    "@medusajs/test-utils": "^2.10.4",
-    "@medusajs/ui": "^4.0.3",
+    "@medusajs/admin-sdk": "^2.11.0",
+    "@medusajs/cli": "^2.11.0",
+    "@medusajs/framework": "^2.11.0",
+    "@medusajs/medusa": "^2.11.0",
+    "@medusajs/test-utils": "^2.11.0",
     "@swc/core": "1.5.7",
     "@types/node": "^20.0.0",
     "@types/react": "^18.3.2",
@@ -59,16 +60,10 @@
     "vite": "^5.2.11"
   },
   "peerDependencies": {
-    "@medusajs/admin-sdk": "^2.10.4",
-    "@medusajs/cli": "^2.10.4",
-    "@medusajs/framework": "^2.10.4",
-    "@medusajs/icons": "^2.10.4",
-    "@medusajs/medusa": "^2.10.4",
-    "@medusajs/test-utils": "^2.10.4",
-    "@medusajs/ui": "^4.0.3",
-    "@paypal/paypal-server-sdk": "^1.1.0"
-  },
-  "engines": {
-    "node": ">=20"
+    "@medusajs/admin-sdk": "^2.11.0",
+    "@medusajs/cli": "^2.11.0",
+    "@medusajs/framework": "^2.11.0",
+    "@medusajs/medusa": "^2.11.0",
+    "@medusajs/test-utils": "^2.11.0"
   }
 }
