@@ -1,10 +1,11 @@
 # Medusa-plugin-paypal
 medusa-plugin-paypal is a integration of payment provider for Paypal.
 
-<div style="border: 2px solid red; padding: 15px; border-radius: 5px; color: #cc0000; background-color: #fff8f8;">
+
+<font color="red">
   WARNING: This package is deprecated. Please use <a href ="https://www.npmjs.com/package/medusa-plugin-payments">medusa-plugin-payments</a> instead.
-</div>
-<br/>
+</font>
+
 
 **[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
 
