@@ -1,10 +1,7 @@
 # Medusa-plugin-paypal
 medusa-plugin-paypal is a integration of payment provider for Paypal.
 
-
-<font color="red">
-  WARNING: This package is deprecated. Please use <a href ="https://www.npmjs.com/package/medusa-plugin-payments">medusa-plugin-payments</a> instead.
-</font>
+## WARNING: This package is deprecated. Please use [medusa-plugin-payments](https://github.com/SummerFans/medusa-plugin-payments) instead.
 
 
 **[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
