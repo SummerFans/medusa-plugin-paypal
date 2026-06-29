@@ -1,6 +1,6 @@
 {
   "name": "medusa-plugin-paypal",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Paypal payment provider for Medusa v2",
   "author": "SummerFans (https://github.com/SummerFans)",
   "license": "MIT",
