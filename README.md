@@ -1,11 +1,12 @@
 # Medusa-plugin-paypal
 medusa-plugin-paypal is a integration of payment provider for Paypal.
 
+<div style="border: 2px solid red; padding: 15px; border-radius: 5px; color: #cc0000; background-color: #fff8f8;">
+  WARNING: This package is deprecated. Please use <a href ="https://www.npmjs.com/package/medusa-plugin-payments">medusa-plugin-payments</a> instead.
+</div>
+<br/>
+
 **[Example](https://github.com/SummerFans/medusa-plugin-paypal/tree/dev/example)**
-
-## ⚠️ Warn
->| Requires Medusa v2.10.4 or later.
-
 
 ## Installaction
 ```
@@ -19,7 +20,22 @@ npm i medusa-plugin-paypal
 const { loadEnv, defineConfig, Modules } = require("@medusajs/framework/utils");
 // ...
 modules:[
-  [Modules.PAYMENT]: {
+   //cache (required)
+    {
+      resolve: "@medusajs/medusa/caching",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/caching-redis",
+            id: "caching-redis",
+            options: {
+              redisUrl: process.env.REDIS_URL,
+            },
+          },
+        ],
+      },
+    },,
+  {
     resolve: "@medusajs/medusa/payment",
     options: {
       providers: [
@@ -200,4 +216,10 @@ switch (true) {
 }
 ...
 })
+```
+
+
+
+```
+/us/order/order_01KVJRDK6TZHN2EDZWGBBBSW2D/confirmed
 ```
